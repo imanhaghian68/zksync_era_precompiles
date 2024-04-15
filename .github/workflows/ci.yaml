@@ -1,4 +1,3 @@
-name: CI
 on:
   merge_group:
   push:
@@ -11,34 +10,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  compile:
-    name: Compile
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      - name: Rustup toolchain install
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          targets: wasm32-unknown-unknown
-
-      - name: Run cargo check
-        run: cd tests && cargo check
-
   lint:
-    name: Lint
+    name: Lint Tests Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
+
+      - name: Set up cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .test-node-subtree
+            tests
+          shared-key: "cache"
 
       - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          components: rustfmt, clippy
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Install rust nightly
+        run: |
+          rustup toolchain install nightly
+          rustup component add rustfmt
+          rustup component add clippy
 
       - name: Run cargo fmt
         run: cd tests && cargo fmt --all -- --check
@@ -46,18 +40,80 @@ jobs:
       - name: Run clippy
         run: cd tests && cargo clippy --all-targets --all-features -- -D warnings
 
-  build-precompiles:
-    name: "Build precompiles"
+  check-tests:
+    name: Cargo check for Tests Code
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-      
-      - name: Clone node
-        run: cd submodules && git clone https://github.com/lambdaclass/era-test-node.git --branch lambdaclasss_precompiles
 
-      - name: Download solc
-        uses: pontem-network/get-solc@master
+      - name: Set up cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .test-node-subtree
+            tests
+          shared-key: "cache"
 
-      - name: "Build precompiles"
-        run: make build-precompiles
+      - name: Rustup toolchain install
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Install rust nightly
+        run: rustup toolchain install nightly --profile minimal --no-self-update
+
+      - name: Run cargo check for tests
+        run: cd tests && cargo check
+
+
+  precompiles:
+    name: Compile node and run tests
+    runs-on: ubuntu-latest
+    needs: [check-tests]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Add solc
+        run: |
+          sudo add-apt-repository -y ppa:ethereum/ethereum
+          sudo apt install solc
+
+      - name: Rustup toolchain install
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Set up cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .test-node-subtree
+            tests
+          shared-key: "cache"
+
+      - name: Install rust nightly
+        run: rustup toolchain install nightly --profile minimal --no-self-update
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.18.0
+
+      - name: Install dependencies and build node
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: build-essential cmake pkg-config libssl-dev clang
+          version: 1.0
+
+      - name: "Run tests"
+        run: |
+          make test-ci
+
+      - name: Print era test node logs
+        run: |
+          cat era_node.log

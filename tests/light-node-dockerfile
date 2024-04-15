@@ -1,0 +1,4 @@
+FROM rust:latest
+COPY ./ /precompiles
+WORKDIR /precompiles
+CMD [ "make", "run-node" ]

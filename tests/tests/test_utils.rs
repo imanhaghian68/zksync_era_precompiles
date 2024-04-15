@@ -9,9 +9,8 @@ use zksync_web3_rs::{
     },
 };
 
-static DEFAULT_L1_PROVIDER_URL: &str =
-    "https://eth-mainnet.alchemyapi.io/v2/Lc7oIGYeL_QvInzI0Wiu_pOZZDEKBrdf";
-static DEFAULT_L2_PROVIDER_URL: &str = "http://localhost:8011";
+static DEFAULT_L1_PROVIDER_URL: &str = "http://127.0.0.1:8545";
+static DEFAULT_L2_PROVIDER_URL: &str = "http://127.0.0.1:8011";
 
 #[allow(dead_code)]
 const ERA_IN_MEMORY_NODE_CHAIN_ID: u64 = 260;
