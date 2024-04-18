@@ -312,7 +312,10 @@ object "EcPairing" {
             /// @param subtrahend The subtrahend in Montgomery form.
             /// @return ret The result of the Montgomery addition.
             function montgomerySub(minuend, subtrahend) -> ret {
-                ret := montgomeryAdd(minuend, sub(P(), subtrahend))
+                ret := sub(minuend, subtrahend)
+                if lt(minuend, subtrahend) {
+                    ret := add(ret, P())
+                }
             }
 
             /// @notice Computes the Montgomery multiplication using the Montgomery reduction algorithm (REDC).
