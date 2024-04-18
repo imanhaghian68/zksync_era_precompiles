@@ -1547,17 +1547,6 @@ object "EcPairing" {
                 f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 := fp12Mul(f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121, l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51)
             }
 
-            /// @notice Computes the Pairing between two points P and Q.
-            /// @dev Applies the Millers Loop and the final exponentiation to return the result of the pairing.
-            /// @params g1x, g1y The coordinates of the point P of the curve G1.
-            /// @params g2_x0, g2_x1 The coefficients of the X coordinate of point Q on the twisted curve G2.
-            /// @params g2_y0, g2_y1 The coefficients of the Y coordinate of point Q on the twisted curve G2.
-            /// @return f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 The Fp12 element result of the pairing e(P,Q)
-            function pair(g1_x, g1_y, g2_x0, g2_x1, g2_y0, g2_y1) -> f000, f001, f010, f011, f100, f101, f110, f111, f200, f201, f210, f211 {
-                f000, f001, f010, f011, f100, f101, f110, f111, f200, f201, f210, f211 := millerLoop(g2_x0, g2_x1, g2_y0, g2_y1, g1_x, g1_y)
-                f000, f001, f010, f011, f100, f101, f110, f111, f200, f201, f210, f211 := finalExponentiation(f000, f001, f010, f011, f100, f101, f110, f111, f200, f201, f210, f211)
-            }
-
             // FALLBACK
 
 		  	let inputSize := calldatasize()
@@ -1645,10 +1634,13 @@ object "EcPairing" {
                     continue
                 }
 
-                let f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 := pair(g1_x, g1_y, g2_x0, g2_x1, g2_y0, g2_y1)
+
+                let f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 := millerLoop(g2_x0, g2_x1, g2_y0, g2_y1, g1_x, g1_y)
 
                 r000, r001, r010, r011, r020, r021, r100, r101, r110, r111, r120, r121 := fp12Mul(r000, r001, r010, r011, r020, r021, r100, r101, r110, r111, r120, r121, f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121)
 			}
+
+            r000, r001, r010, r011, r020, r021, r100, r101, r110, r111, r120, r121 := finalExponentiation(r000, r001, r010, r011, r020, r021, r100, r101, r110, r111, r120, r121)
 
             // Pair check
             if and(eq(r000, MONTGOMERY_ONE()), iszero(or(r001, or(r010, r011)))) {

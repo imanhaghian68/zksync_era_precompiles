@@ -1,3 +1,11 @@
 era_test_node.log
 submodules/era_test_node
 tests/gas_reports
+src/deps/contracts/EcAdd.yul.zbin
+src/deps/contracts/EcAddG2.yul.zbin
+src/deps/contracts/EcMul.yul.zbin
+src/deps/contracts/EcMulG2.yul.zbin
+src/deps/contracts/EcPairing.yul.zbin
+src/deps/contracts/ModExp.yul.zbin
+src/deps/contracts/P256VERIFY.yul.zbin
+src/deps/contracts/secp256k1VERIFY.yul.zbin
