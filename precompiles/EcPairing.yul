@@ -25,7 +25,7 @@ object "EcPairing" {
                 two_inv := 14119558874979547267292681013829403749242370018224634694350716214666112402802
             }
             /// @notice constant function for the coeffitients of the sextic twist of the BN256 curve.
-            /// @dev E': y' ** 2 = x' ** 3 + 3 / (3 + u)
+            /// @dev E': y' ** 2 = x' ** 3 + 3 / (9 + u)
             /// @dev the curve E' is defined over Fp2 elements.
             /// @dev See https://hackmd.io/@jpw/bn254#Twists for further details.
             /// @return coefficients of the sextic twist of the BN256 curve
@@ -67,7 +67,7 @@ object "EcPairing" {
             }
 
             /// @notice Constant function for decimal representation of the NAF for the Millers Loop.
-            /// @dev Millers loop uses to iterate the NAF representation of the value t = 6x^2 + 1. Where x = 4965661367192848881 is a parameter of the BN 256 curve.
+            /// @dev Millers loop uses to iterate the NAF representation of the value t = 6x^2. Where x = 4965661367192848881 is a parameter of the BN 256 curve.
             /// @dev For details of the x parameter: https://hackmd.io/@jpw/bn254#Barreto-Naehrig-curves.
             /// @dev A NAF representation uses values: -1, 0 and 1. https://en.wikipedia.org/wiki/Non-adjacent_form.
             /// @dev For iterating between this values we represent the 0 as 001, the 1 as 010 and the -1 as 100.
@@ -375,7 +375,7 @@ object "EcPairing" {
 
 			/// @notice Converts a G2 point in affine coordinates to projective coordinates.
 			/// @dev Both input and output coordinates are encoded in Montgomery form.
-            /// @dev If x and y differ from 0, just add z = (1,0).
+            /// @dev If x or y differ from 0, just add z = (1,0).
             /// @dev If x and y are equal to 0, then P is the infinity point, and z = (0,0).
             /// @param xp0, xp1 The x coordinate to trasnform.
             /// @param yp0, yp1 The y coordinate to transform.
@@ -411,7 +411,7 @@ object "EcPairing" {
 
             /// @notice Checks if a G2 point in affine coordinates belongs to the twisted curve.
             /// @dev The coordinates are encoded in Montgomery form.
-            /// @dev in Affine coordinates the point belongs to the curve if it satisfies the equation: y^3 = x^2 + 3/(9+u).
+            /// @dev in Affine coordinates the point belongs to the curve if it satisfies the equation: y^2 = x^3 + 3.
             /// @dev See https://hackmd.io/@jpw/bn254#Twists for further details.
             /// @param x0, x1 The x coordinate to check.
             /// @param y0, y1 The y coordinate to check.
@@ -491,6 +491,7 @@ object "EcPairing" {
 
             /// @notice Add two g2 points represented in jacobian coordinates.
             /// @dev The coordinates must be encoded in Montgomery form.
+            /// @dev The points to be added must be different, if not the function will return infinity. The function `g2JacobianDouble` should be used in that case.
             /// @param xq0, xq1 The x coordinate of the first point.
             /// @param yq0, yq1 The y coordinate of the first point.
             /// @param zq0, zq1 The z coordinate of the first point.
@@ -912,7 +913,7 @@ object "EcPairing" {
                 c100, c101, c110, c111, c120, c121 := fp6Sub(z00, z01, z10, z11, z20, z21, c100, c101, c110, c111, c120, c121)
             }
 
-            /// @notice Computes the exponentiation of a Fp12 element in the cyclotomic subgroup to t = 6x^2 + 1.
+            /// @notice Computes the exponentiation of a Fp12 element in the cyclotomic subgroup to t = 4965661367192848881.
             /// @dev We make use of an addition chain to optimize the operation.
             /// @dev See https://eprint.iacr.org/2015/192.pdf for further details.
             /// @param a000, a001, a010, a011, a020, a021, a100, a101, a110, a111, a120, a121 The coefficients of the Fp12 element A.
@@ -965,7 +966,7 @@ object "EcPairing" {
             }
 
             /// @notice Computes the square of a Fp12 element in the cyclotomic subgroup.
-            /// @dev See https://eprint.iacr.org/2010/542.pdf for further details.
+            /// @dev See https://eprint.iacr.org/2010/354.pdf for further details.
             /// @param a000, a001, a010, a011, a020, a021, a100, a101, a110, a111, a120, a121 The coefficients of the Fp12 element A.
             /// @return c000, c001, c010, c011, c020, c021, c100, c101, c110, c111, c120, c121 The coefficients of the element C = A^2.
             function fp12CyclotomicSquare(a000, a001, a010, a011, a020, a021, a100, a101, a110, a111, a120, a121) -> c000, c001, c010, c011, c020, c021, c100, c101, c110, c111, c120, c121 {
@@ -1314,7 +1315,9 @@ object "EcPairing" {
 
             /// @notice Computes the addition of two G2 points and the line through them.
             /// @dev It's called mixed addition because Q is in affine coordinates ands T in projective coordinates.
+            /// @dev The two points must be different, in this Q, which is G2 group generator of an order of 21888242871839275222246405745257275088548364400416034343698204186575808495617, is doubled and added. So will never reach Q.
             /// @dev See https://eprint.iacr.org/2013/722.pdf for further details.
+            /// @dev Disclaimer: The algorithm described in the paper is has a typo, the (`l00`,`l01`) coefficients should not be negated.
             /// @params xq0, xq1 The coefficients of the Fp2 X coordinate of the Q point.
             /// @params yq0, yq1 The coefficients of the Fp2 Y coordinate of the Q point.
             /// @params xt0, xt1 The coefficients of the Fp2 X coordinate of the T point.
@@ -1373,7 +1376,8 @@ object "EcPairing" {
             }
 
             /// @notice Computes the line through two G2 points.
-            /// @dev Like in the mixed_addition_step, Q is in affine coordinates ands T in projective coordinates.
+            /// @dev Like in the mixedAdditionStep, Q is in affine coordinates ands T in projective coordinates.
+            /// @dev The two points must be different, in this Q, which is G2 group generator of an order of 21888242871839275222246405745257275088548364400416034343698204186575808495617, is doubled and added. So will never reach Q.
             /// @params xq0, xq1 The coefficients of the Fp2 X coordinate of the Q point.
             /// @params yq0, yq1 The coefficients of the Fp2 Y coordinate of the Q point.
             /// @params xt0, xt1 The coefficients of the Fp2 X coordinate of the T point.
@@ -1415,7 +1419,7 @@ object "EcPairing" {
             /// @dev To calcualte this we use the first 5 lines of Algorithm 31 in: https://eprint.iacr.org/2010/354.pdf
             /// @dev For the hard part we use the Fuentes et al. method. Algorithm 6 in: https://eprint.iacr.org/2015/192.pdf
             /// @params a000, a001, a010, a011, a020, a021, a100, a101, a110, a111, a120, a121 The coefficients of the Fp12 element A.
-            /// @return f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 The coefficients of A^((p^12 -1)/r)
+            /// @return f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 The coefficients of A^(s*((p^12 -1)/r)) where s is not divisible by r.
             function finalExponentiation(a000, a001, a010, a011, a020, a021, a100, a101, a110, a111, a120, a121) -> f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 {
                 f000 := a000
                 f001 := a001
