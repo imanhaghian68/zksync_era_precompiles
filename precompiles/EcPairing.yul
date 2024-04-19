@@ -390,16 +390,6 @@ object "EcPairing" {
 				yr1 := yp1
 				zr0 := MONTGOMERY_ONE()
 				zr1 := 0
-				if and(eq(xp0, 0), eq(xp1, 0)) {
-					if and(eq(yp0, 0), eq(yp1, 0)) {
-						xr0 := MONTGOMERY_ONE()
-						// xr1 is already 0
-						yr0 := MONTGOMERY_ONE()
-						// yr1 is already 0
-						zr0 := 0
-						// zr1 is already 0
-					}
-				}
 			}
 
             /// @notice Checks if a G2 point in affine coordinates is the point at infinity.
