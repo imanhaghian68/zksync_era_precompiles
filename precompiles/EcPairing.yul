@@ -1540,7 +1540,7 @@ object "EcPairing" {
                 l30, l31 := fp2ScalarMul(l30, l31, xp)
                 f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 := fp12Mul(f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121, l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51)
 
-                l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51, t00, t01, t10, t11, t20, t21 := mixedAdditionStep(r20, r21, r30, r31, t00, t01, t10, t11, t20, t21)
+                l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51 := computeLine(r20, r21, r30, r31, t00, t01, t10, t11, t20, t21)
                 l00, l01 := fp2ScalarMul(l00, l01, yp)
                 l30, l31 := fp2ScalarMul(l30, l31, xp)
                 f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 := fp12Mul(f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121, l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51)
