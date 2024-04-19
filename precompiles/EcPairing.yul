@@ -498,10 +498,6 @@ object "EcPairing" {
                 // Check for infinity in projective coordinates is the same as jacobian
                 let qIsInfinity := g2ProjectivePointIsInfinity(xq0, xq1, yq0, yq1, zq0, zq1)
                 let rIsInfinity := g2ProjectivePointIsInfinity(xr0, xr1, yr0, yr1, zr0, zr1)
-                if and(rIsInfinity, qIsInfinity) {
-                    // Infinity + Infinity = Infinity
-                    leave
-                }
                 if rIsInfinity {
                     // Infinity + P = P
                     c00 := xq0
