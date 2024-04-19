@@ -70,15 +70,17 @@ object "EcPairing" {
             /// @dev Millers loop uses to iterate the NAF representation of the value t = 6x^2. Where x = 4965661367192848881 is a parameter of the BN 256 curve.
             /// @dev For details of the x parameter: https://hackmd.io/@jpw/bn254#Barreto-Naehrig-curves.
             /// @dev A NAF representation uses values: -1, 0 and 1. https://en.wikipedia.org/wiki/Non-adjacent_form.
-            /// @dev For iterating between this values we represent the 0 as 001, the 1 as 010 and the -1 as 100.
-            /// @dev Then we concatenate all and represent the result as a decimal. E.g. [0,-1,0,1] -> 001 100 001 010 -> 778
-            /// @dev In each step of the iteration we just need to compute the operation AND between the number and 1, 2 and 4 to check the original value.
-            /// @dev Finally we shift 3 bits to the right to get the next value.
+            /// @dev For iterating between this values we represent the 0 as 00, the 1 as 01 and the -1 as 10.
+            /// @dev Then we concatenate all and represent the result as a decimal. E.g. [0,-1,0,1] -> 00 10 00 01 -> 33
+            /// @dev In each step of the iteration we just need to compute the operation AND between the number and 1 and 2 to check the original value.
+            /// @dev Finally we shift 2 bits to the right to get the next value.
             /// @dev For this implementation, the first two iterations of the Miller loop are skipped, so the last two digits of the NAF representation of t are not used.
             /// @dev This value was precomputed using Python.
             /// @return ret The value of the decimal representation of the NAF.
             function NAF_REPRESENTATIVE() ->  ret {
-                ret := 112285798093791963372401816628038344551273221779706221137
+                // NAF rep in binary form
+                // 000000010001001000001000000001000010001000000001001000000000100000010010000001000000000010000010000100100000001000100000000100
+                ret := 355712981487968141245753120442583044
             }
 
             /// @notice Constant function for the zero element in Fp6 representation.
@@ -1506,7 +1508,7 @@ object "EcPairing" {
                     f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 := fp12Mul(f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121, l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51)
 
                     // naf digit = 1
-                    if and(naf, 2) {
+                    if and(naf, 1) {
                         l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51, t00, t01, t10, t11, t20, t21 := mixedAdditionStep(xq0, xq1, yq0, yq1, t00, t01, t10, t11, t20, t21)
                         l00, l01 := fp2ScalarMul(l00, l01, yp)
                         l30, l31 := fp2ScalarMul(l30, l31, xp)
@@ -1514,14 +1516,14 @@ object "EcPairing" {
                     }
 
                     // naf digit = -1
-                    if and(naf, 4) {
+                    if and(naf, 2) {
                         l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51, t00, t01, t10, t11, t20, t21 := mixedAdditionStep(mq00, mq01, mq10, mq11, t00, t01, t10, t11, t20, t21)
                         l00, l01 := fp2ScalarMul(l00, l01, yp)
                         l30, l31 := fp2ScalarMul(l30, l31, xp)
                         f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 := fp12Mul(f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121, l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51)
                     }
 
-                    naf := shr(3, naf)
+                    naf := shr(2, naf)
                 }
 
                 let r00, r01 := fp2Conjugate(xq0, xq1)
