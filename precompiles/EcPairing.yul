@@ -1474,7 +1474,7 @@ object "EcPairing" {
                 f000, f001, f010, f011, f020, f021, f100, f101, f110, f111, f120, f121 := FP12_ONE()
                 let naf := NAF_REPRESENTATIVE()
                 let n_iter := 63
-                let l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51 := FP12_ONE()
+                let l00, l01, l10, l11, l20, l21, l30, l31, l40, l41, l50, l51
 
                 // Computes the first iteration of Millers loop outside to avoid unecesariy square
                 // NAF[64] == 0
