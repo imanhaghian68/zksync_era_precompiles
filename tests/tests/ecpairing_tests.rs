@@ -364,8 +364,12 @@ async fn ecpairing_fuzz_positive() {
     ];
     for input in inputs {
         let input_bytes = Some(Bytes::from(hex::decode(input).unwrap()));
-        let eth_response = eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone()).await.unwrap();
-        let era_response = era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes).await.unwrap();
+        let eth_response = eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone())
+            .await
+            .unwrap();
+        let era_response = era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes)
+            .await
+            .unwrap();
         let (era_output, gas_used) = parse_call_result(&era_response);
         write_ecpairing_gas_result(gas_used);
         assert_eq!(era_output.len(), 32);
@@ -385,8 +389,12 @@ async fn ecpairing_fuzz_negative() {
     ];
     for input in inputs {
         let input_bytes = Some(Bytes::from(hex::decode(input).unwrap()));
-        let eth_response = eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone()).await.unwrap();
-        let era_response = era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes).await.unwrap();
+        let eth_response = eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone())
+            .await
+            .unwrap();
+        let era_response = era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes)
+            .await
+            .unwrap();
         let (era_output, gas_used) = parse_call_result(&era_response);
         write_ecpairing_gas_result(gas_used);
         assert_eq!(era_output.len(), 32);
@@ -414,8 +422,14 @@ async fn ecpairing_fuzz_invalid_g1_point() {
     ];
     for input in inputs {
         let input_bytes = Some(Bytes::from(hex::decode(input).unwrap()));
-        assert!(eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone()).await.is_err());
-        assert!(era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes).await.is_err());
+        assert!(
+            eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone())
+                .await
+                .is_err()
+        );
+        assert!(era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes)
+            .await
+            .is_err());
     }
 }
 
@@ -439,8 +453,14 @@ async fn ecpairing_fuzz_invalid_g2_point() {
     ];
     for input in inputs {
         let input_bytes = Some(Bytes::from(hex::decode(input).unwrap()));
-        assert!(eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone()).await.is_err());
-        assert!(era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes).await.is_err());
+        assert!(
+            eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone())
+                .await
+                .is_err()
+        );
+        assert!(era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes)
+            .await
+            .is_err());
     }
 }
 
@@ -529,7 +549,13 @@ async fn ecpairing_fuzz_invalid_g2_subgroup() {
     ];
     for input in inputs {
         let input_bytes = Some(Bytes::from(hex::decode(input).unwrap()));
-        assert!(eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone()).await.is_err());
-        assert!(era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes).await.is_err());
+        assert!(
+            eth_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes.clone())
+                .await
+                .is_err()
+        );
+        assert!(era_call(ECPAIRING_PRECOMPILE_ADDRESS, None, input_bytes)
+            .await
+            .is_err());
     }
 }
